@@ -7,6 +7,7 @@
 [ext_resource type="Shader" uid="uid://cod3rp8f3j63m" path="res://IrisWipe.gdshader" id="5_bss38"]
 [ext_resource type="Shader" uid="uid://deh67vdbdpv6i" path="res://texto.gdshader" id="5_qn3nj"]
 [ext_resource type="Texture2D" uid="uid://y8c68ur84hoj" path="res://Assets/Sprites/cuadroText1.png" id="5_tda05"]
+[ext_resource type="VideoStream" uid="uid://m3vu5cjd1a5y" path="res://Assets/UI/Pon_solo_el_zarpazo_y_que_escu.ogv" id="8_l6pdb"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_bss38"]
 animations = [{
@@ -157,11 +158,12 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="Audio" type="Node" parent="." unique_id=1539830960]
+[node name="VideoMuerte" type="VideoStreamPlayer" parent="CanvasLayer" unique_id=272407438]
+offset_right = 1280.0
+offset_bottom = 720.0
+stream = ExtResource("8_l6pdb")
 
-[node name="VideoMuerte" type="VideoStreamPlayer" parent="." unique_id=272407438]
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="Audio" type="Node" parent="." unique_id=1539830960]
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=988510328]
 libraries/ = SubResource("AnimationLibrary_qn3nj")

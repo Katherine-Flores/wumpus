@@ -11,6 +11,7 @@ public partial class MainSimulation : Node
     private Sprite2D         spriteCuevaNormal;
     private AnimatedSprite2D wumpus;
     private GridContainer    miniMapa;
+    private VideoStreamPlayer videoMuerte;
 
     // - Lógica del juego ---------------------------
     private Tablero  mundo;
@@ -20,7 +21,7 @@ public partial class MainSimulation : Node
     private bool     transicionDisparada      = false;
     private bool     teniaFlechaEnTurnoAnterior = true;
 
-    // - Spritesheet del minimapa (se carga una sola vez) ----------─
+    // - Spritesheet del minimapa (se carga una sola vez) -----------
     private Texture2D sheetMinimapa;
 
     private const int FRAME_VACIO  = 0;
@@ -43,11 +44,13 @@ public partial class MainSimulation : Node
         mundo.ImprimirMapaConsola();
 
         animadorTransicion = GetNode<AnimationPlayer>("AnimationPlayer");
+
         labelSensores      = GetNode<Label>("CanvasLayer/TextureRect/LabelSensores");
         labelHistorial     = GetNode<RichTextLabel>("CanvasLayer/TextureRect2/LabelHistorial");
         spriteCuevaNormal  = GetNode<Sprite2D>("CanvasLayer/Normal");
         spriteCuevaOro     = GetNode<Sprite2D>("CanvasLayer/Oro");
         wumpus             = GetNode<AnimatedSprite2D>("CanvasLayer/Wumpus");
+        videoMuerte        = GetNode<VideoStreamPlayer>("CanvasLayer/VideoMuerte");
         miniMapa           = GetNode<GridContainer>("CanvasLayer/MiniMapa");
 
         sheetMinimapa = GD.Load<Texture2D>("res://Assets/Sprites/celdas.png");
@@ -320,6 +323,7 @@ public partial class MainSimulation : Node
         {
             labelSensores.Text = "💀 El silencio vuelve a la cueva. Has perecido en la oscuridad.";
             wumpus.Visible = true;
+            videoMuerte.Play();
         }
         else if (inteligencia.ObtenerEstadoTieneOro() &&
                  inteligencia.PosicionActual.X == 0   &&
