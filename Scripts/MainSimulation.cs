@@ -12,6 +12,7 @@ public partial class MainSimulation : Node
     private AnimatedSprite2D wumpus;
     private GridContainer    miniMapa;
     private VideoStreamPlayer videoMuerte;
+    private AudioStreamPlayer audioGameplay;
 
     // - Lógica del juego ---------------------------
     private Tablero  mundo;
@@ -51,9 +52,13 @@ public partial class MainSimulation : Node
         spriteCuevaOro     = GetNode<Sprite2D>("CanvasLayer/Oro");
         wumpus             = GetNode<AnimatedSprite2D>("CanvasLayer/Wumpus");
         videoMuerte        = GetNode<VideoStreamPlayer>("CanvasLayer/VideoMuerte");
+        audioGameplay      = GetNode<AudioStreamPlayer>("Audio");
         miniMapa           = GetNode<GridContainer>("CanvasLayer/MiniMapa");
 
         sheetMinimapa = GD.Load<Texture2D>("res://Assets/Sprites/celdas.png");
+        audioGameplay.Stream = GD.Load<AudioStream>("res://Assets/Sounds/Corrupción en la Game Boy.mp3");
+        audioGameplay.Autoplay = false;
+        audioGameplay.Play();
 
         InicializarMiniMapa();
 
@@ -323,6 +328,7 @@ public partial class MainSimulation : Node
         {
             labelSensores.Text = "💀 El silencio vuelve a la cueva. Has perecido en la oscuridad.";
             wumpus.Visible = true;
+            audioGameplay.Stop();
             videoMuerte.Play();
         }
         else if (inteligencia.ObtenerEstadoTieneOro() &&
