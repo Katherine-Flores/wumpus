@@ -228,6 +228,56 @@ Traduce las percepciones actuales del agente a descripciones narrativas en prime
 
 Actualiza el texto del HUD según el desenlace: muerte por hoyo o wumpus, o victoria con el oro en `[0,0]`.
 
+#### `InicializarMiniMapa()` y `ActualizarMiniMapa()`
+
+El minimapa es un `GridContainer` de Godot donde cada celda se construye como un árbol de nodos superpuestos:
+
+```
+Control "Celda_X_Y"
+  ├── TextureRect "Sprite"      ← sprite del contenido (capa base)
+  ├── ColorRect   "Overlay"     ← tinte semitransparente sobre el sprite
+  ├── ColorRect   "BordeTop"    ┐
+  ├── ColorRect   "BordeBottom" │ cuatro segmentos de 2px
+  ├── ColorRect   "BordeLeft"   │ forman el borde visible
+  └── ColorRect   "BordeRight"  ┘
+```
+
+`InicializarMiniMapa()` crea esta estructura una sola vez en `_Ready()`. `ActualizarMiniMapa()` se llama cada turno y modifica el color del `Overlay` y de los cuatro `Borde*` según el estado de inferencia de la IA para esa celda.
+
+**Importante:** el minimapa muestra el **conocimiento del agente**, no el mapa real. Una celda con hoyo confirmado aparece con su sprite y borde rojo solo si la IA lo dedujo — las celdas que nunca percibió ni infirió permanecen oscuras.
+
+---
+
+## Guía visual del minimapa
+
+Cada celda del minimapa comunica dos cosas simultáneamente: el **sprite** (qué hay en la celda según la IA) y el **color** (qué tan segura o peligrosa la considera).
+
+### Sprites
+
+| Sprite               | Significado                                    |
+| -------------------- | ---------------------------------------------- |
+| Celda oscura / vacía | Contenido desconocido o celda vacía confirmada |
+| Icono de hoyo        | Hoyo confirmado por inferencia o visitado      |
+| Icono de Wumpus      | Wumpus confirmado por inferencia o encontrado  |
+| Icono de oro         | Oro encontrado al pisar la celda               |
+
+### Colores de overlay y borde
+
+| Color                            | Estado                   | Explicación                                         |
+| -------------------------------- | ------------------------ | --------------------------------------------------- |
+| **Amarillo** — borde grueso      | Posición actual de la IA | La celda donde se encuentra el agente en este turno |
+| **Blanco tenue** — borde fino    | Celda visitada           | El agente pisó esta celda al menos una vez          |
+| **Verde** — overlay + borde      | `Seguro` inferido        | La IA dedujo que no hay hoyo ni Wumpus (por R1+R3)  |
+| **Naranja** — overlay + borde    | `PosibleHoyo`            | Hay brisa en al menos un vecino visitado            |
+| **Rojo suave** — overlay + borde | `PosibleWumpus`          | Hay hedor en al menos un vecino visitado            |
+| **Rojo fuerte** — borde grueso   | `HoyoConfirmado`         | Único candidato restante tras eliminación (R6)      |
+| **Morado** — borde grueso        | `WumpusConfirmado`       | Único candidato restante tras eliminación (R7)      |
+| **Sin color**                    | `Desconocido`            | La IA no tiene información sobre esta celda aún     |
+
+### Relación con la lógica proposicional
+
+Los colores son una representación visual directa de la base de conocimiento del agente. Por ejemplo, si ves una celda naranja adyacente a otra verde, significa que la IA detectó brisa en una celda visitada cercana pero ya descartó otras opciones — esa celda naranja es la sospechosa. Si el naranja se convierte en rojo fuerte, la IA aplicó la regla R6 (eliminación) y ya está segura de que hay un hoyo ahí.
+
 ---
 
 ## Flujo de ejecución
@@ -262,7 +312,7 @@ int totalWumpus      = 1;  // Número de Wumpus (el agente tiene una flecha)
 La velocidad de simulación se controla con:
 
 ```csharp
-private float tiempoPorPaso = 2.0f;  // Segundos entre turnos del agente
+private float tiempoPorPaso = 4.0f;  // Segundos entre turnos del agente
 ```
 
 ---
